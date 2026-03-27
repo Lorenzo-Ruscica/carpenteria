@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contatti | Carpenteria Metallica</title>
+    <meta name="description" content="Contattaci per informazioni sui nostri servizi di carpenteria metallica.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar solid-bg">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-hammer"></i> 
+                <span>Metal<strong>Craft</strong></span>
+            </a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="servizi.html" class="nav-link">Servizi</a></li>
+                <li><a href="contatti.html" class="nav-link active">Contatti</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="page-header bg-contact">
+        <div class="page-overlay"></div>
+        <div class="page-content fade-in-up">
+            <h1>Contattaci</h1>
+            <p>Siamo pronti a realizzare i tuoi progetti con precisione e passione.</p>
+        </div>
+    </header>
+
+    <section class="contact-section">
+        <div class="container d-flex wrap section-padding justify-between align-start">
+            <div class="contact-info col-4 slide-right">
+                <h2>I Nostri Recapiti</h2>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div>
+                        <h4>Sede Operativa</h4>
+                        <p>Via Roggeri 9</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+                    <div>
+                        <h4>Telefono</h4>
+                        <p>3203870663</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+                    <div>
+                        <h4>Email</h4>
+                        <p>info@metalcraft.it</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fa-solid fa-clock"></i></div>
+                    <div>
+                        <h4>Orari di Apertura</h4>
+                        <p>Lunedì - Venerdì: 08:00 - 18:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form col-7 slide-left">
+                <h2>Scrivici un Messaggio</h2>
+                <form id="contactForm" class="form-modern">
+                    <div class="form-group">
+                        <label for="name">Nome e Cognome</label>
+                        <input type="text" id="name" name="name" required placeholder="Inserisci il tuo nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Indirizzo Email</label>
+                        <input type="email" id="email" name="email" required placeholder="es. info@dominio.it">
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Servizio di Interesse</label>
+                        <select id="service" name="service">
+                            <option value="">Seleziona un servizio (opzionale)</option>
+                            <option value="porte">Porte e Inferriate</option>
+                            <option value="saldature">Saldature TIG</option>
+                            <option value="arredamento">Arredamento Civile/Inox</option>
+                            <option value="scale">Scale per Interni</option>
+                            <option value="altro">Altro...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Messaggio</label>
+                        <textarea id="message" name="message" rows="5" required placeholder="Descrivi qui la tua richiesta"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-submit">Invia Richiesta</button>
+                    <p class="form-success hidden" id="formSuccess">Messaggio inviato con successo! Ti contatteremo a breve.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Placeholder Section -->
+    <section class="map-section fade-in-up">
+        <div class="map-placeholder">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <p>Mappa Interattiva (Integra qui Google Maps)</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <a href="index.html" class="logo"><i class="fa-solid fa-hammer"></i> Metal<strong>Craft</strong></a>
+                <p>La tua ditta di carpenteria di fiducia. Professionalità e innovazione al tuo servizio.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Link Utili</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="servizi.html">Servizi</a></li>
+                    <li><a href="contatti.html">Contatti</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contatti</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Via Roggeri 9</p>
+                <p><i class="fa-solid fa-phone"></i> 3203870663</p>
+                <p><i class="fa-solid fa-envelope"></i> info@metalcraft.it</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MetalCraft Carpenteria. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
