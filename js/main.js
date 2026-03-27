@@ -68,23 +68,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const service = document.getElementById('service').value;
+            const message = document.getElementById('message').value;
+            
+            // Costruzione del mailto link nativo per GitHub Pages (nessun server richiesto)
+            const subject = encodeURIComponent(`Nuova richiesta dal Sito Web da: ${name}`);
+            const body = encodeURIComponent(`Nome: ${name}\nEmail: ${email}\nServizio di Interesse: ${service}\n\nMessaggio:\n${message}`);
+            const mailtoLink = `mailto:lorenzo.ruscica2008@gmail.com?subject=${subject}&body=${body}`;
+
             const submitBtn = contactForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = 'Invio in corso...';
+            submitBtn.innerText = 'Apertura client Email...';
             submitBtn.style.opacity = '0.7';
             submitBtn.disabled = true;
+            
+            // Attiva il client di posta dell'utente
+            window.location.href = mailtoLink;
 
             setTimeout(() => {
                 submitBtn.innerText = originalText;
                 submitBtn.style.opacity = '1';
                 submitBtn.disabled = false;
-                contactForm.reset();
+                
+                formSuccess.innerText = "Il client di posta si è aperto! Ricordati di premere 'Invia' dalla tua app per completare la richiesta.";
+                formSuccess.style.color = '#4CAF50';
+                formSuccess.style.borderColor = 'rgba(76, 175, 80, 0.2)';
                 formSuccess.classList.remove('hidden');
                 
                 setTimeout(() => {
                     formSuccess.classList.add('hidden');
-                }, 5000);
-            }, 1000);
+                }, 8000);
+            }, 1500);
         });
     }
 
