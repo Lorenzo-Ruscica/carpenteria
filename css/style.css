@@ -203,9 +203,15 @@ img {
     font-weight: 500;
 }
 
-.logo i {
-    color: var(--primary);
-    font-size: 1.4rem;
+.logo-img {
+    height: 75px; 
+    width: auto;
+    filter: brightness(0) invert(1); /* Forces it to pure white */
+    transition: var(--transition-fast);
+}
+
+.footer-col .logo-img {
+    height: 60px;
 }
 
 .nav-menu {
