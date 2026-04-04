@@ -97,19 +97,8 @@
     <script>
         const SUPABASE_URL = "https://zscbswzaoknecldltzcf.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzY2Jzd3phb2tuZWNsZGx0emNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTU0OTYsImV4cCI6MjA5MDg3MTQ5Nn0.sGUb8toSGiINg_vVKqAYOQaezaXiUPTEzHUr_4PB8JM";
-        // Sicurezza: Mostra errori critici Javascript a schermo per diagnosticare problemi
-        window.addEventListener('error', function(e) {
-            showMessage("Errore JS: " + e.message, true);
-        });
 
-        // Controllo se Supabase è stato caricato correttamente
-        if (typeof window.supabase === 'undefined') {
-            showMessage("Errore Critico: La libreria Supabase non è stata caricata. Controlla la connessione internet.", true);
-        }
-
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const supabase = supabaseClient; // Fix per compatibilità col resto del codice
-
+        // 1. Inizializza subito l'UI
         const UI = {
             loginSection: document.getElementById('loginSection'),
             adminPanel: document.getElementById('adminPanel'),
@@ -118,6 +107,29 @@
             formPanel: document.getElementById('serviceFormPanel'),
             migrationBanner: document.getElementById('migrationBanner')
         };
+
+        function showMessage(text, isError = false) {
+            if(!UI.msg) return; // Paracadute di emergenza
+            UI.msg.innerText = text;
+            UI.msg.style.display = 'block';
+            UI.msg.style.backgroundColor = isError ? 'rgba(255,0,0,0.2)' : 'rgba(0,255,0,0.2)';
+            UI.msg.style.color = isError ? '#ff5555' : '#55ff55';
+            setTimeout(() => UI.msg.style.display = 'none', 8000);
+        }
+
+        // 2. Scudo Anti-Errori globale (ora che showMessage funziona)
+        window.addEventListener('error', function(e) {
+            showMessage("Errore Script bloccante: " + e.message, true);
+        });
+
+        // 3. Controllo libreria Supabase
+        if (typeof supabase === 'undefined' && typeof window.supabase === 'undefined') {
+            showMessage("Errore Critico: La libreria di Supabase non è stata caricata. Spegni l'AdBlocker o assicurati di essere connesso a internet.", true);
+            throw new Error("Supabase is missing");
+        }
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = supabaseClient; // Fix per compatibilità col resto del codice
 
         const BASE_DATA_FALLBACK = [{"id":"arredamenti","name":"Arredamenti Civili","images":["Arredamenti_civili.webp","Arredamenti_civili2.webp","Arredamenti_civili3.webp","Arredamenti_civili4.webp"],"desc_testo":"Possibilità di arredamenti con particolari auto e moto in qualsiasi stile"},{"id":"banco-inox","name":"Costruzione Banco Acciaio Inox","images":["Costruzione_bancho_acciaio_inox.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"porte-inferriate","name":"Costruzione di Porte e Inferriate","images":["Costruzione_di_porte_inferiate.webp","Costruzione_di_porte_inferiate2.webp","Costruzione_di_porte_inferiate3.webp","Costruzione_di_porte_inferiate4.webp","Costruzione_di_porte_inferiate5.webp","Costruzione_di_porte_inferiate6.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"inferriate-zincate","name":"Inferriate Zincate","images":["Inferiate_zincate.webp","Inferiate_zincate2.webp","Inferiate_zincate3.webp"],"desc_testo":"Zincatura per durare nel tempo"},{"id":"lavorazioni-meccaniche","name":"Lavorazioni Meccaniche","images":["Lavorazione_meccaniche.webp","Lavorazione_meccaniche2.webp"],"desc_testo":"Lavorazioni su tornio e particolari cnc"},{"id":"saldatura-alluminio","name":"Saldatura su Alluminio TIG","images":["Saldatura_su_alluminio_tig.webp","Saldatura_su_alluminio_tig2.webp","Saldatura_su_alluminio_tig3.webp","Saldatura_su_alluminio_tig4.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"saldatura-acciaio","name":"Saldature a TIG su Acciaio","images":["Saldature_a_TIG_su_acciaio.webp","Saldature_a_TIG_su_acciaio2.webp","Saldature_a_TIG_su_acciaio3.webp","Saldature_a_TIG_su_acciaio4.webp"],"desc_testo":"Servizio per scarichi sportivi personalizzati su auto"},{"id":"cancelletti-artistici","name":"Cancelletti Artistici","images":["cancelletti_artistici.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"tende-sole","name":"Installazione Tende da Sole","images":["installazione_tende_da_sole.webp","installazione_tende_da_sole2.webp"],"desc_testo":"Possibilità di tende motorizzate"},{"id":"modifiche","name":"Modifiche Strutturali","images":["modifiche.webp","modifiche2.webp","modifiche3.webp","modifiche4.webp","modifiche5.webp","modifiche6.webp","modifiche7.webp","modifiche8.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"modifiche-serrature","name":"Modifiche Serrature","images":["modifiche_serrature.webp","modifiche_serrature2.webp","modifiche_serrature3.webp","modifiche_serrature4.webp","modifiche_serrature5.webp"],"desc_testo":"Modifiche su porte blindate da serratura a doppia mappa a cilindro europeo con defender"},{"id":"saldatura-rig","name":"Saldatura ad Alta Precisione","images":["saldatura_a_rig.webp"],"desc_testo":"Saldatura con posizionatore meccanico"},{"id":"scale-interni","name":"Scale per Interni","images":["scale_per_interni.webp","scale_per_interni2.webp","scale_per_interni3.webp"],"desc_testo":"Disponibile qualsiasi modello moderno o ferro battuto"},{"id":"verniciatura","name":"Verniciatura a Polvere","images":["verniciatura_a_polvere.webp"],"desc_testo":"Disponibilità di moltissimi colori su richiesta"},{"id":"tapparelle","name":"Riparazione Tapparelle","images":["tapparelle.webp","tapparelle2.webp"],"desc_testo":"Sostituzione e riparazione tapparelle in PVC alluminio coibentate e motorizzazione"}];
 
