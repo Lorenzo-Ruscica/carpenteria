@@ -97,7 +97,18 @@
     <script>
         const SUPABASE_URL = "https://zscbswzaoknecldltzcf.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzY2Jzd3phb2tuZWNsZGx0emNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTU0OTYsImV4cCI6MjA5MDg3MTQ5Nn0.sGUb8toSGiINg_vVKqAYOQaezaXiUPTEzHUr_4PB8JM";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Sicurezza: Mostra errori critici Javascript a schermo per diagnosticare problemi
+        window.addEventListener('error', function(e) {
+            showMessage("Errore JS: " + e.message, true);
+        });
+
+        // Controllo se Supabase è stato caricato correttamente
+        if (typeof window.supabase === 'undefined') {
+            showMessage("Errore Critico: La libreria Supabase non è stata caricata. Controlla la connessione internet.", true);
+        }
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = supabaseClient; // Fix per compatibilità col resto del codice
 
         const UI = {
             loginSection: document.getElementById('loginSection'),
@@ -115,23 +126,40 @@
             UI.msg.style.display = 'block';
             UI.msg.style.backgroundColor = isError ? 'rgba(255,0,0,0.2)' : 'rgba(0,255,0,0.2)';
             UI.msg.style.color = isError ? '#ff5555' : '#55ff55';
-            setTimeout(() => UI.msg.style.display = 'none', 4000);
+            setTimeout(() => UI.msg.style.display = 'none', 8000);
         }
 
         async function init() {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) showAdminPanel();
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                if (data && data.session) showAdminPanel();
+            } catch(e) {
+                console.error("Errore sessione iniziale:", e);
+            }
         }
 
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
             
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                showMessage("Credenziali errate: " + error.message, true);
-            } else {
-                showAdminPanel();
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "Caricamento...";
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                
+                if (error) {
+                    showMessage("Accesso negato: " + error.message, true);
+                    if(error.message.includes("fetch")) {
+                        showMessage("C'è un blocco di rete. Stai aprendo il file dal computer (file://)? Per funzionare correttamente col database, Vercel o un server locale è richiesto.", true);
+                    }
+                } else {
+                    showAdminPanel();
+                }
+            } catch(e) {
+                showMessage("Errore bloccante: " + e.message + " (Possibile problema CORS o file locale)", true);
+            } finally {
+                btn.innerText = "Accedi al Pannello";
             }
         });
 
