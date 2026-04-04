@@ -129,7 +129,6 @@
         }
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const supabase = supabaseClient; // Fix per compatibilità col resto del codice
 
         const BASE_DATA_FALLBACK = [{"id":"arredamenti","name":"Arredamenti Civili","images":["Arredamenti_civili.webp","Arredamenti_civili2.webp","Arredamenti_civili3.webp","Arredamenti_civili4.webp"],"desc_testo":"Possibilità di arredamenti con particolari auto e moto in qualsiasi stile"},{"id":"banco-inox","name":"Costruzione Banco Acciaio Inox","images":["Costruzione_bancho_acciaio_inox.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"porte-inferriate","name":"Costruzione di Porte e Inferriate","images":["Costruzione_di_porte_inferiate.webp","Costruzione_di_porte_inferiate2.webp","Costruzione_di_porte_inferiate3.webp","Costruzione_di_porte_inferiate4.webp","Costruzione_di_porte_inferiate5.webp","Costruzione_di_porte_inferiate6.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"inferriate-zincate","name":"Inferriate Zincate","images":["Inferiate_zincate.webp","Inferiate_zincate2.webp","Inferiate_zincate3.webp"],"desc_testo":"Zincatura per durare nel tempo"},{"id":"lavorazioni-meccaniche","name":"Lavorazioni Meccaniche","images":["Lavorazione_meccaniche.webp","Lavorazione_meccaniche2.webp"],"desc_testo":"Lavorazioni su tornio e particolari cnc"},{"id":"saldatura-alluminio","name":"Saldatura su Alluminio TIG","images":["Saldatura_su_alluminio_tig.webp","Saldatura_su_alluminio_tig2.webp","Saldatura_su_alluminio_tig3.webp","Saldatura_su_alluminio_tig4.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"saldatura-acciaio","name":"Saldature a TIG su Acciaio","images":["Saldature_a_TIG_su_acciaio.webp","Saldature_a_TIG_su_acciaio2.webp","Saldature_a_TIG_su_acciaio3.webp","Saldature_a_TIG_su_acciaio4.webp"],"desc_testo":"Servizio per scarichi sportivi personalizzati su auto"},{"id":"cancelletti-artistici","name":"Cancelletti Artistici","images":["cancelletti_artistici.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"tende-sole","name":"Installazione Tende da Sole","images":["installazione_tende_da_sole.webp","installazione_tende_da_sole2.webp"],"desc_testo":"Possibilità di tende motorizzate"},{"id":"modifiche","name":"Modifiche Strutturali","images":["modifiche.webp","modifiche2.webp","modifiche3.webp","modifiche4.webp","modifiche5.webp","modifiche6.webp","modifiche7.webp","modifiche8.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"modifiche-serrature","name":"Modifiche Serrature","images":["modifiche_serrature.webp","modifiche_serrature2.webp","modifiche_serrature3.webp","modifiche_serrature4.webp","modifiche_serrature5.webp"],"desc_testo":"Modifiche su porte blindate da serratura a doppia mappa a cilindro europeo con defender"},{"id":"saldatura-rig","name":"Saldatura ad Alta Precisione","images":["saldatura_a_rig.webp"],"desc_testo":"Saldatura con posizionatore meccanico"},{"id":"scale-interni","name":"Scale per Interni","images":["scale_per_interni.webp","scale_per_interni2.webp","scale_per_interni3.webp"],"desc_testo":"Disponibile qualsiasi modello moderno o ferro battuto"},{"id":"verniciatura","name":"Verniciatura a Polvere","images":["verniciatura_a_polvere.webp"],"desc_testo":"Disponibilità di moltissimi colori su richiesta"},{"id":"tapparelle","name":"Riparazione Tapparelle","images":["tapparelle.webp","tapparelle2.webp"],"desc_testo":"Sostituzione e riparazione tapparelle in PVC alluminio coibentate e motorizzazione"}];
 
@@ -176,7 +175,7 @@
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             UI.adminPanel.classList.add('hidden');
             UI.loginSection.classList.remove('hidden');
         });
@@ -189,7 +188,7 @@
 
         async function loadServices() {
             UI.list.innerHTML = "<p>Caricamento dati in corso...</p>";
-            const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+            const { data, error } = await supabaseClient.from('services').select('*').order('created_at', { ascending: true });
             
             if (error) {
                 UI.list.innerHTML = `<p style="color:red">Errore caricamento: Assicurati di aver incollato il codice SQL su Supabase.</p>`;
@@ -228,7 +227,7 @@
         document.getElementById('migrateBtn').addEventListener('click', async () => {
             document.getElementById('migrateBtn').innerText = "Importazione in corso...";
             for(let item of BASE_DATA_FALLBACK) {
-                await supabase.from('services').insert([item]);
+                await supabaseClient.from('services').insert([item]);
             }
             showMessage("I dati base originali sono stati sbloccati online!");
             loadServices();
@@ -252,7 +251,7 @@
         });
 
         window.editService = async (id) => {
-            const { data, error } = await supabase.from('services').select('*').eq('id', id).single();
+            const { data, error } = await supabaseClient.from('services').select('*').eq('id', id).single();
             if(data) {
                 document.getElementById('formTitle').innerText = "Modifica Servizio";
                 document.getElementById('serviceId').value = data.id;
@@ -266,7 +265,7 @@
 
         window.deleteService = async (id) => {
             if(confirm("Sei sicuro di cancellare questo servizio?")) {
-                await supabase.from('services').delete().eq('id', id);
+                await supabaseClient.from('services').delete().eq('id', id);
                 showMessage("Servizio eliminato");
                 loadServices();
             }
@@ -306,15 +305,15 @@
             let finalId = idField;
             if(!finalId) finalId = name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random()*1000);
 
-            // Upload eventuali nuovi file su Vercel Storage simulato e via su Supabase Storage
+            // Upload eventuali nuovi file
             for(let file of files) {
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Math.random()}.${fileExt}`;
-                const { data, error } = await supabase.storage.from('servizi_immagini').upload(fileName, file);
+                const { data, error } = await supabaseClient.storage.from('servizi_immagini').upload(fileName, file);
                 
                 if(data) {
                     // Prendi URL pubblico
-                    const pubUrl = supabase.storage.from('servizi_immagini').getPublicUrl(fileName).data.publicUrl;
+                    const pubUrl = supabaseClient.storage.from('servizi_immagini').getPublicUrl(fileName).data.publicUrl;
                     currentEditingImages.push(pubUrl);
                 } else if(error) {
                     alert("Errore caricamento Immagine: " + error.message + " (Hai creato il bucket 'servizi_immagini' PUBLIC su Supabase?)");
@@ -330,10 +329,10 @@
 
             const isEdit = idField !== "";
             if(isEdit) {
-                await supabase.from('services').update(payload).eq('id', finalId);
+                await supabaseClient.from('services').update(payload).eq('id', finalId);
                 showMessage("Servizio modificato con successo");
             } else {
-                await supabase.from('services').insert([payload]);
+                await supabaseClient.from('services').insert([payload]);
                 showMessage("Nuovo servizio creato!");
             }
 
