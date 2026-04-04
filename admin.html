@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannello di Amministrazione | Filifer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background-color: var(--dark-bg); color: var(--text); padding: 50px 20px; }
+        .admin-container { max-width: 900px; margin: auto; background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .admin-header { text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; }
+        input[type="text"], input[type="password"], textarea { width: 100%; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .hidden { display: none !important; }
+        #adminPanel { margin-top: 20px; }
+        .service-list { display: flex; flex-direction: column; gap: 15px; }
+        .service-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-small { padding: 8px 15px; font-size: 0.9rem; }
+        .btn-danger { background: #e74c3c; color: #fff; border: none; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h2>Area Riservata - Filifer</h2>
+            <img src="immagini/logo_filifer.png" alt="Logo" style="height: 50px; filter: brightness(0) invert(1); margin-top: 15px;">
+        </div>
+
+        <!-- Messaggi di sistema -->
+        <div id="systemMessage" style="padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; text-align: center; font-weight: bold;"></div>
+
+        <!-- Login Form -->
+        <div id="loginSection">
+            <div class="form-group">
+                <label>Email Admin</label>
+                <input type="text" id="adminEmail" placeholder="La tua email Supabase">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="La tua password sicura">
+            </div>
+            <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Accedi al Pannello</button>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminPanel" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;">
+                <h3>Gestione Servizi</h3>
+                <button id="logoutBtn" class="btn btn-danger btn-small">Esci</button>
+            </div>
+            
+            <div id="migrationBanner" class="hidden" style="background: rgba(255, 165, 0, 0.1); border: 1px solid orange; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="color: orange; margin-bottom: 10px;"><b>Avviso:</b> Il database è vuoto. Clicca per caricare tutti i tuoi servizi e immagini preesistenti nel nuovo database!</p>
+                <button id="migrateBtn" class="btn btn-primary btn-small">Importa Dati Base Ora</button>
+            </div>
+
+            <button id="addNewBtn" class="btn btn-secondary" style="width: 100%; border: 1px dashed var(--primary); margin-bottom: 20px;"><i class="fa-solid fa-plus"></i> Aggiungi Nuovo Servizio</button>
+
+            <!-- Modulo Aggiunta/Modifica (Inizialmente nascosto) -->
+            <div id="serviceFormPanel" class="hidden" style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid var(--primary);">
+                <h4 id="formTitle" style="margin-bottom: 15px;">Nuovo Servizio</h4>
+                <input type="hidden" id="serviceId">
+                <div class="form-group">
+                    <label>Titolo Servizio</label>
+                    <input type="text" id="serviceName" placeholder="Es: Cancelli Ruggine">
+                </div>
+                <div class="form-group">
+                    <label>Descrizione</label>
+                    <textarea id="serviceDesc" rows="3" placeholder="Sottotitolo descrittivo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Aggiungi Foto (Seleziona una o più immagini)</label>
+                    <input type="file" id="serviceFiles" multiple accept="image/*" style="background: transparent; border: none; padding: 0;">
+                    <p style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Nota: Le foto verranno caricate istantaneamente. Puoi caricare sia nuove foto che utilizzare quelle vecchie.</p>
+                </div>
+                
+                <div id="currentImagesPreview" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;"></div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="saveServiceBtn" class="btn btn-primary" style="flex: 1;">Salva Servizio</button>
+                    <button id="cancelFormBtn" class="btn btn-secondary" style="background: transparent; color: #fff;">Annulla</button>
+                </div>
+            </div>
+
+            <div class="service-list" id="servicesListArchive">
+                <p style="text-align: center; color: #888;">Caricamento in corso...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://zscbswzaoknecldltzcf.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzY2Jzd3phb2tuZWNsZGx0emNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyOTU0OTYsImV4cCI6MjA5MDg3MTQ5Nn0.sGUb8toSGiINg_vVKqAYOQaezaXiUPTEzHUr_4PB8JM";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const UI = {
+            loginSection: document.getElementById('loginSection'),
+            adminPanel: document.getElementById('adminPanel'),
+            list: document.getElementById('servicesListArchive'),
+            msg: document.getElementById('systemMessage'),
+            formPanel: document.getElementById('serviceFormPanel'),
+            migrationBanner: document.getElementById('migrationBanner')
+        };
+
+        const BASE_DATA_FALLBACK = [{"id":"arredamenti","name":"Arredamenti Civili","images":["Arredamenti_civili.webp","Arredamenti_civili2.webp","Arredamenti_civili3.webp","Arredamenti_civili4.webp"],"desc_testo":"Possibilità di arredamenti con particolari auto e moto in qualsiasi stile"},{"id":"banco-inox","name":"Costruzione Banco Acciaio Inox","images":["Costruzione_bancho_acciaio_inox.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"porte-inferriate","name":"Costruzione di Porte e Inferriate","images":["Costruzione_di_porte_inferiate.webp","Costruzione_di_porte_inferiate2.webp","Costruzione_di_porte_inferiate3.webp","Costruzione_di_porte_inferiate4.webp","Costruzione_di_porte_inferiate5.webp","Costruzione_di_porte_inferiate6.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"inferriate-zincate","name":"Inferriate Zincate","images":["Inferiate_zincate.webp","Inferiate_zincate2.webp","Inferiate_zincate3.webp"],"desc_testo":"Zincatura per durare nel tempo"},{"id":"lavorazioni-meccaniche","name":"Lavorazioni Meccaniche","images":["Lavorazione_meccaniche.webp","Lavorazione_meccaniche2.webp"],"desc_testo":"Lavorazioni su tornio e particolari cnc"},{"id":"saldatura-alluminio","name":"Saldatura su Alluminio TIG","images":["Saldatura_su_alluminio_tig.webp","Saldatura_su_alluminio_tig2.webp","Saldatura_su_alluminio_tig3.webp","Saldatura_su_alluminio_tig4.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"saldatura-acciaio","name":"Saldature a TIG su Acciaio","images":["Saldature_a_TIG_su_acciaio.webp","Saldature_a_TIG_su_acciaio2.webp","Saldature_a_TIG_su_acciaio3.webp","Saldature_a_TIG_su_acciaio4.webp"],"desc_testo":"Servizio per scarichi sportivi personalizzati su auto"},{"id":"cancelletti-artistici","name":"Cancelletti Artistici","images":["cancelletti_artistici.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"tende-sole","name":"Installazione Tende da Sole","images":["installazione_tende_da_sole.webp","installazione_tende_da_sole2.webp"],"desc_testo":"Possibilità di tende motorizzate"},{"id":"modifiche","name":"Modifiche Strutturali","images":["modifiche.webp","modifiche2.webp","modifiche3.webp","modifiche4.webp","modifiche5.webp","modifiche6.webp","modifiche7.webp","modifiche8.webp"],"desc_testo":"qua dobbiamo decidere una descrizione se vuoi"},{"id":"modifiche-serrature","name":"Modifiche Serrature","images":["modifiche_serrature.webp","modifiche_serrature2.webp","modifiche_serrature3.webp","modifiche_serrature4.webp","modifiche_serrature5.webp"],"desc_testo":"Modifiche su porte blindate da serratura a doppia mappa a cilindro europeo con defender"},{"id":"saldatura-rig","name":"Saldatura ad Alta Precisione","images":["saldatura_a_rig.webp"],"desc_testo":"Saldatura con posizionatore meccanico"},{"id":"scale-interni","name":"Scale per Interni","images":["scale_per_interni.webp","scale_per_interni2.webp","scale_per_interni3.webp"],"desc_testo":"Disponibile qualsiasi modello moderno o ferro battuto"},{"id":"verniciatura","name":"Verniciatura a Polvere","images":["verniciatura_a_polvere.webp"],"desc_testo":"Disponibilità di moltissimi colori su richiesta"},{"id":"tapparelle","name":"Riparazione Tapparelle","images":["tapparelle.webp","tapparelle2.webp"],"desc_testo":"Sostituzione e riparazione tapparelle in PVC alluminio coibentate e motorizzazione"}];
+
+        function showMessage(text, isError = false) {
+            UI.msg.innerText = text;
+            UI.msg.style.display = 'block';
+            UI.msg.style.backgroundColor = isError ? 'rgba(255,0,0,0.2)' : 'rgba(0,255,0,0.2)';
+            UI.msg.style.color = isError ? '#ff5555' : '#55ff55';
+            setTimeout(() => UI.msg.style.display = 'none', 4000);
+        }
+
+        async function init() {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) showAdminPanel();
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                showMessage("Credenziali errate: " + error.message, true);
+            } else {
+                showAdminPanel();
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            UI.adminPanel.classList.add('hidden');
+            UI.loginSection.classList.remove('hidden');
+        });
+
+        async function showAdminPanel() {
+            UI.loginSection.classList.add('hidden');
+            UI.adminPanel.classList.remove('hidden');
+            loadServices();
+        }
+
+        async function loadServices() {
+            UI.list.innerHTML = "<p>Caricamento dati in corso...</p>";
+            const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+            
+            if (error) {
+                UI.list.innerHTML = `<p style="color:red">Errore caricamento: Assicurati di aver incollato il codice SQL su Supabase.</p>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                UI.migrationBanner.classList.remove('hidden');
+                UI.list.innerHTML = "";
+            } else {
+                UI.migrationBanner.classList.add('hidden');
+                renderList(data);
+            }
+        }
+
+        function renderList(services) {
+            UI.list.innerHTML = '';
+            services.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'service-item';
+                div.innerHTML = `
+                    <div>
+                        <h4 style="margin: 0; color: var(--primary);">${s.name}</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #aaa;">${(s.images || []).length} Foto caricate</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary btn-small" onclick="editService('${s.id}')">Modifica</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteService('${s.id}')">Elimina</button>
+                    </div>
+                `;
+                UI.list.appendChild(div);
+            });
+        }
+
+        // ====== MIGRATION ======
+        document.getElementById('migrateBtn').addEventListener('click', async () => {
+            document.getElementById('migrateBtn').innerText = "Importazione in corso...";
+            for(let item of BASE_DATA_FALLBACK) {
+                await supabase.from('services').insert([item]);
+            }
+            showMessage("I dati base originali sono stati sbloccati online!");
+            loadServices();
+        });
+
+        // ====== GESTIONE MODULI ======
+        let currentEditingImages = [];
+
+        document.getElementById('addNewBtn').addEventListener('click', () => {
+            document.getElementById('formTitle').innerText = "Nuovo Servizio";
+            document.getElementById('serviceId').value = "";
+            document.getElementById('serviceName').value = "";
+            document.getElementById('serviceDesc').value = "";
+            document.getElementById('currentImagesPreview').innerHTML = "";
+            currentEditingImages = [];
+            UI.formPanel.classList.remove('hidden');
+        });
+
+        document.getElementById('cancelFormBtn').addEventListener('click', () => {
+            UI.formPanel.classList.add('hidden');
+        });
+
+        window.editService = async (id) => {
+            const { data, error } = await supabase.from('services').select('*').eq('id', id).single();
+            if(data) {
+                document.getElementById('formTitle').innerText = "Modifica Servizio";
+                document.getElementById('serviceId').value = data.id;
+                document.getElementById('serviceName').value = data.name;
+                document.getElementById('serviceDesc').value = data.desc_testo;
+                currentEditingImages = data.images || [];
+                renderImagePreview();
+                UI.formPanel.classList.remove('hidden');
+            }
+        };
+
+        window.deleteService = async (id) => {
+            if(confirm("Sei sicuro di cancellare questo servizio?")) {
+                await supabase.from('services').delete().eq('id', id);
+                showMessage("Servizio eliminato");
+                loadServices();
+            }
+        };
+
+        function renderImagePreview() {
+            const box = document.getElementById('currentImagesPreview');
+            box.innerHTML = '';
+            currentEditingImages.forEach((img, index) => {
+                const isUrl = img.startsWith('http');
+                const src = isUrl ? img : `immagini/${img}`;
+                box.innerHTML += `
+                    <div style="position:relative; width: 60px; height: 60px;">
+                        <img src="${src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                        <span onclick="removeImage(${index})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; width:18px; height:18px; text-align:center; font-size:12px; cursor:pointer; line-height:18px;">&times;</span>
+                    </div>
+                `;
+            });
+        }
+
+        window.removeImage = (index) => {
+            currentEditingImages.splice(index, 1);
+            renderImagePreview();
+        };
+
+        // SALVATAGGIO & UPLOAD MULTIPLO
+        document.getElementById('saveServiceBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('saveServiceBtn');
+            btn.innerText = "Salvataggio in corso...";
+            btn.disabled = true;
+
+            const idField = document.getElementById('serviceId').value;
+            const name = document.getElementById('serviceName').value;
+            const desc = document.getElementById('serviceDesc').value;
+            const files = document.getElementById('serviceFiles').files;
+
+            let finalId = idField;
+            if(!finalId) finalId = name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random()*1000);
+
+            // Upload eventuali nuovi file su Vercel Storage simulato e via su Supabase Storage
+            for(let file of files) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const { data, error } = await supabase.storage.from('servizi_immagini').upload(fileName, file);
+                
+                if(data) {
+                    // Prendi URL pubblico
+                    const pubUrl = supabase.storage.from('servizi_immagini').getPublicUrl(fileName).data.publicUrl;
+                    currentEditingImages.push(pubUrl);
+                } else if(error) {
+                    alert("Errore caricamento Immagine: " + error.message + " (Hai creato il bucket 'servizi_immagini' PUBLIC su Supabase?)");
+                }
+            }
+
+            const payload = {
+                id: finalId,
+                name: name,
+                desc_testo: desc,
+                images: currentEditingImages
+            };
+
+            const isEdit = idField !== "";
+            if(isEdit) {
+                await supabase.from('services').update(payload).eq('id', finalId);
+                showMessage("Servizio modificato con successo");
+            } else {
+                await supabase.from('services').insert([payload]);
+                showMessage("Nuovo servizio creato!");
+            }
+
+            btn.innerText = "Salva Servizio";
+            btn.disabled = false;
+            document.getElementById('serviceFiles').value = ""; // Resetta l'input file
+            
+            UI.formPanel.classList.add('hidden');
+            loadServices();
+        });
+
+        init();
+    </script>
+
+</body>
+</html>

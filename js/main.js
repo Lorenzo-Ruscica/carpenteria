@@ -74,34 +74,55 @@ document.addEventListener('DOMContentLoaded', () => {
             const service = document.getElementById('service').value;
             const message = document.getElementById('message').value;
             
-            // Costruzione del mailto link nativo per GitHub Pages (nessun server richiesto)
-            const subject = encodeURIComponent(`Nuova richiesta dal Sito Web da: ${name}`);
-            const body = encodeURIComponent(`Nome: ${name}\nEmail: ${email}\nServizio di Interesse: ${service}\n\nMessaggio:\n${message}`);
-            const mailtoLink = `mailto:lorenzo.ruscica2008@gmail.com?subject=${subject}&body=${body}`;
-
             const submitBtn = contactForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = 'Apertura client Email...';
+            submitBtn.innerText = 'Invio in corso...';
             submitBtn.style.opacity = '0.7';
             submitBtn.disabled = true;
-            
-            // Attiva il client di posta dell'utente
-            window.location.href = mailtoLink;
 
-            setTimeout(() => {
+            // Invia silensiosamente via Vercel-friendly API (FormSubmit)
+            fetch("https://formsubmit.co/ajax/bruinofilifer@gmail.com", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    Nome: name,
+                    Email: email,
+                    ServizioRichiesto: service,
+                    Messaggio: message,
+                    _subject: "Nuova richiesta dal Sito Web - " + name
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 submitBtn.innerText = originalText;
                 submitBtn.style.opacity = '1';
                 submitBtn.disabled = false;
                 
-                formSuccess.innerText = "Il client di posta si è aperto! Ricordati di premere 'Invia' dalla tua app per completare la richiesta.";
-                formSuccess.style.color = '#4CAF50';
-                formSuccess.style.borderColor = 'rgba(76, 175, 80, 0.2)';
-                formSuccess.classList.remove('hidden');
+                if(data.success === "true" || data.success === true) {
+                    formSuccess.innerText = "Messaggio inviato con successo! Ti risponderemo al più presto.";
+                    formSuccess.style.color = '#4CAF50';
+                    formSuccess.style.borderColor = 'rgba(76, 175, 80, 0.2)';
+                    contactForm.reset();
+                } else {
+                    formSuccess.innerText = "Devi attivare il form! Controlla la mail bruinofilifer@gmail.com per confermare.";
+                    formSuccess.style.color = '#ff5500';
+                    formSuccess.style.borderColor = 'rgba(255, 85, 0, 0.2)';
+                }
                 
-                setTimeout(() => {
-                    formSuccess.classList.add('hidden');
-                }, 8000);
-            }, 1500);
+                formSuccess.classList.remove('hidden');
+                setTimeout(() => formSuccess.classList.add('hidden'), 10000);
+            })
+            .catch(error => {
+                submitBtn.innerText = originalText;
+                submitBtn.style.opacity = '1';
+                submitBtn.disabled = false;
+                formSuccess.innerText = "Errore di connessione. Riprova più tardi.";
+                formSuccess.style.color = '#ff5500';
+                formSuccess.classList.remove('hidden');
+            });
         });
     }
 
