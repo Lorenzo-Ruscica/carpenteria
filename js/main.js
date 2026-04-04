@@ -141,6 +141,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    /* GDPR Cookie Consent Pop-up */
+    if (!localStorage.getItem('filifer_cookie_consent')) {
+        const banner = document.createElement('div');
+        banner.id = "cookieConsentBanner";
+        // Uso z-index: 99999 per assicurare che sia sopra la navbar
+        banner.innerHTML = `
+            <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; background: rgba(15, 17, 23, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255, 85, 0, 0.5); padding: 25px; border-radius: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); animation: slideUp 0.5s ease forwards;">
+                <div>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; margin-bottom: 8px; color: #fff;">Informativa sui Cookie</h3>
+                    <p style="font-size: 0.95rem; color: #bbb; margin: 0; line-height: 1.5;">Utilizziamo cookie tecnici essenziali per il funzionamento del sito e strumenti di terze parti (come Google Maps) per fornirti la migliore esperienza. Cliccando su "Accetta Tutto", acconsenti all'uso dei cookie. Per maggiori info, leggi la nostra <a href="cookie-policy.html" style="color: var(--primary); text-decoration: underline;">Cookie Policy</a> e <a href="privacy-policy.html" style="color: var(--primary); text-decoration: underline;">Privacy Policy</a>.</p>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                    <button id="rejectCookies" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ccc; padding: 10px 25px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif;">Rifiuta non Essenziali</button>
+                    <button id="acceptCookies" class="btn btn-primary" style="padding: 10px 30px; font-weight: 500;">Accetta Tutto</button>
+                </div>
+            </div>
+        `;
+        
+        // Aggiungi la keyframe animation via inline style tag
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(banner);
+
+        document.getElementById('acceptCookies').addEventListener('click', () => {
+            localStorage.setItem('filifer_cookie_consent', 'accepted');
+            banner.style.display = 'none';
+        });
+        document.getElementById('rejectCookies').addEventListener('click', () => {
+            localStorage.setItem('filifer_cookie_consent', 'rejected');
+            banner.style.display = 'none';
+        });
+    }
+
     // Handle BFCache (Back/Forward browser buttons)
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {

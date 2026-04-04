@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Policy | Filifer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar solid-bg">
+        <div class="nav-container">
+            <a href="index.html" class="logo"><img src="immagini/logo_filifer.png" alt="Filifer" class="logo-img" style="height: 75px; width: auto; filter: brightness(0) invert(1);"><span>Filifer</span></a>
+            <div class="menu-toggle" id="mobile-menu"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="servizi.html" class="nav-link">Servizi</a></li>
+                <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" style="padding-top: 150px; padding-bottom: 80px; max-width: 800px;">
+        <h1 style="color: var(--primary); font-family: 'Outfit', sans-serif; font-size: 3rem; margin-bottom: 10px;">Cookie Policy</h1>
+        <p style="color: var(--text-muted); margin-bottom: 40px;">Ultimo aggiornamento: 4 Aprile 2026</p>
+
+        <div style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); line-height: 1.6;">
+            <h3>1. Cosa sono i Cookie?</h3>
+            <p>I cookie sono piccoli file di testo che i siti visitati inviano al terminale dell'utente, dove vengono memorizzati, per poi essere ritrasmessi agli stessi siti alla visita successiva. Questo sito utilizza un numero ridotto di strumenti tecnici unicamente per garantirti un'ottima esperienza di navigazione.</p>
+
+            <br><h3>2. Cookie Essenziali / Tecnici utilizzati</h3>
+            <p><strong>- Preferenza di Consenso:</strong> Utilizziamo un semplice registro locale (`filifer_cookie_consent`) per memorizzare se tu abbia accettato o rifiutato il banner informativo all'ingresso del sito, in modo da non riproportelo inutilmente in futuro. Questo dato non ti profila ed è strettamente necessario.</p>
+
+            <br><h3>3. Cookie di Terze Parti</h3>
+            <p>All'interno del sito è incorporata la mappa interattiva fornita da <strong>Google Maps</strong> (nella pagina Contatti). Questo widget di terze parti potrebbe installare cookie profilanti e di localizzazione gestiti interamente dai server di Google LLC, su cui noi non abbiamo controllo. Per consultare l'informativa in merito, visita <a href="https://policies.google.com/privacy" style="color: var(--primary);">le norme sulla Privacy di Google</a>.</p>
+
+            <br><h3>4. Gestione e Disabilitazione</h3>
+            <p>In aggiunta a quanto indicato in questo documento, l'Utente può gestire le preferenze relative ai Cookie direttamente all'interno del proprio browser ed impedire – ad esempio – che terze parti possano installarne. Tramite le preferenze del browser è inoltre possibile eliminare i Cookie installati in passato.</p>
+
+            <br>
+            <button id="resetCookieBtn" class="btn btn-secondary" style="border: 1px solid var(--primary); background: transparent; color: #fff;">Reset delle preferenze Cookie</button>
+            <p id="resetMessage" style="color: #4CAF50; display: none; margin-top: 10px;">Le tue preferenze sono state rimosse. Verrai reindirizzato...</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <a href="index.html" class="logo"><img src="immagini/logo_filifer.png" alt="Filifer Logo" class="logo-img" style="height: 60px; filter: brightness(0) invert(1);"> Filifer</a>
+                <p>Eccellenza nella carpenteria metallica civile e industriale.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Link Utili</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="servizi.html">Servizi</a></li>
+                    <li><a href="contatti.html">Contatti</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="cookie-policy.html">Cookie Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contatti</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Via Roggeri 9</p>
+                <p><i class="fa-solid fa-phone"></i> 3203870663</p>
+                <p><i class="fa-solid fa-envelope"></i> bruinofilifer@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Filifer Carpenteria. Tutti i diritti riservati. | P.IVA: 13429910014</p>
+        </div>
+    </footer>
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('resetCookieBtn').addEventListener('click', () => {
+            localStorage.removeItem('filifer_cookie_consent');
+            document.getElementById('resetMessage').style.display = 'block';
+            setTimeout(() => window.location.href = 'index.html', 1500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /js/main.js
+Disallow: /setup_database.sql
+
+Sitemap: https://www.filifer.it/sitemap.xml

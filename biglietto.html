@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biglietto da Visita | Filifer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF5500;
+            --dark-bg: #0d0f14;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: #222; /* Sfondo neutro per far risaltare il biglietto */
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+            padding: 50px;
+            margin: 0;
+        }
+
+        /* Dimensioni standard biglietto da visita formato Europeo: 85x55mm 
+           Moltplicato per altissima risoluzione (circa 300dpi = 1004x650 px) */
+        .business-card {
+            width: 1004px;
+            height: 650px;
+            background-color: var(--dark-bg);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            /* Abbondanza per il taglio (bleed) aggiunta tramite bordo interno se stampato a piena vista, qui lo facciamo esatto */
+        }
+
+        /* Elementi grafici di abbellimento ripresi dal sito */
+        .glow-circle-1 {
+            position: absolute;
+            top: -150px;
+            left: -150px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 85, 0, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .glow-circle-2 {
+            position: absolute;
+            bottom: -200px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 85, 0, 0.1) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            border: 1px solid rgba(255,255,255,0.05); /* Bordo lievissimo utile come guida di taglio */
+        }
+
+        /* --- FRONTE --- */
+        .front {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .front .logo-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .front img {
+            height: 140px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .front h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5.5rem;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .front .subtitle {
+            margin-top: 15px;
+            font-size: 1.6rem;
+            color: var(--primary);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* --- RETRO --- */
+        .back {
+            flex-direction: row;
+        }
+
+        .left-col {
+            width: 45%;
+            height: 100%;
+            background: var(--glass-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-top-right-radius: 100px;
+        }
+
+        .left-col img {
+            height: 70px;
+            filter: brightness(0) invert(1);
+            margin-bottom: 20px;
+        }
+
+        .left-col .website {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .right-col {
+            width: 55%;
+            padding: 80px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 85, 0, 0.15);
+            border: 1px solid rgba(255, 85, 0, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .contact-text h4 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #888;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-text p {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .piva {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 1px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #aaa; font-family: 'Outfit'; margin: 0;">Fronte del Biglietto</h2>
+
+    <div class="business-card" id="card-front">
+        <div class="glow-circle-1"></div>
+        <div class="glow-circle-2"></div>
+        
+        <div class="card-content front">
+            <div class="logo-container">
+                <img src="immagini/logo_filifer.png" alt="Logo Filifer">
+                <h1>FILIFER</h1>
+            </div>
+            <div class="subtitle">Carpenteria Metallica</div>
+        </div>
+    </div>
+
+    <h2 style="color: #aaa; font-family: 'Outfit'; margin-top: 40px; margin-bottom: 0;">Retro del Biglietto</h2>
+
+    <div class="business-card" id="card-back">
+        <div class="glow-circle-1" style="left: auto; right: -150px; top: auto; bottom: -150px;"></div>
+        
+        <div class="card-content back">
+            
+            <div class="left-col">
+                <img src="immagini/logo_filifer.png" alt="Logo">
+                <div class="website">WWW.FILIFER.IT</div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fwww.filifer.it" alt="QR Code Filifer" style="width: 130px; height: 130px; margin-top: 30px; border-radius: 8px; border: 5px solid #fff; filter: none;">
+            </div>
+
+            <div class="right-col">
+                
+                <div class="contact-item">
+                    <div class="icon-box"><i class="fa-solid fa-phone"></i></div>
+                    <div class="contact-text">
+                        <h4>Telefono</h4>
+                        <p>320 3870663</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="icon-box"><i class="fa-solid fa-envelope"></i></div>
+                    <div class="contact-text">
+                        <h4>Email</h4>
+                        <p>bruinofilifer@gmail.com</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="icon-box"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="contact-text">
+                        <h4>Sede</h4>
+                        <p>Via Roggeri 9</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="piva">P.IVA 13429910014</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; max-width: 800px; background: #333; padding: 20px; border-radius: 10px; margin-top: 50px;">
+        <h3 style="color: #FF5500; margin-top: 0;">Istruzioni d'esportazione in Massima Qualità</h3>
+        <p style="font-size: 0.9rem; line-height: 1.5; color: #ccc; margin-bottom: 0;">
+            Non usare il tasto "Stamp" della tastiera! Perde qualità.<br>
+            Su Google Chrome: premi <strong>F12</strong> per aprire gli strumenti ontwikkelaar, premi <strong>CTRL + SHIFT + P</strong>, scrivi "<strong>Node</strong>" e clicca su "<strong>Capture node screenshot (Cattura screenshot del nodo)</strong>". Dopo averlo fatto, basta che tu abbia il mouse sopra al rettangolo del biglietto. Otterrai un file PNG perfetto pronto per la tipografia.
+        </p>
+    </div>
+
+</body>
+</html>
